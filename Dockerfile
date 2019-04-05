@@ -23,5 +23,3 @@ RUN mkdir -p /root/.code-server/Backups
 RUN mkdir -p /root/.code-server/extensions 
 RUN mkdir -p /root/.code-server/User/workspaceStorage
 RUN mkdir -p /root/.code-server/globalStorage
-RUN echo '{"rootWorkspaces":[],"folderURIWorkspaces":[],"emptyWorkspaceInfos":[],"emptyWorkspaces":[]}' > /root/.code-server/Backups/workspaces.json
-RUN echo '{}' > /root/.code-server/globalStorage/state.json
