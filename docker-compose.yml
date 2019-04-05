@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  cubicle:
+    build: .
+    image: brainpower/cubicle
+    ports:
+      - '8443:8443'
+    command: code-server --allow-http --no-auth

@@ -1,0 +1,18 @@
+#!/bin/sh
+set -x
+set -e
+shift
+
+publisher=${1%.*}
+extension=${1#*.}
+version=$2
+vsixfile="/tmp/${1}-${2}.vsix"
+
+curl --compressed \
+     --retry 3 \
+     --retry-delay 60 \
+     -L https://marketplace.visualstudio.com/_apis/public/gallery/publishers/${publisher}/vsextensions/$extension/$version/vspackage \
+     -o "$vsixfile"
+
+vsix-add "$vsixfile"
+rm "$vsixfile"
