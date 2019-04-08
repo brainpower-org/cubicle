@@ -7,3 +7,5 @@ services:
     ports:
       - '8443:8443'
     command: code-server --allow-http --no-auth
+    volumes:
+      - ".:/repo"
