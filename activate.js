@@ -10,7 +10,7 @@ async function main(flags) {
     const manifestPaths = (await globby('*/package.json', { cwd: flags.extensionDir })).map(p => Path.resolve(flags.extensionDir, p));
     const manifests = manifestPaths
         .map(p => ({ content: JSON.parse(Fs.readFileSync(p)), path: p }))
-        .filter(m => flags.name ? m.name === flags.name : true);
+        .filter(m => flags.name ? m.content.name === flags.name : true);
 
     await Promise.all(manifests.map(async manifest => {
         const extDirectory = Path.dirname(manifest.path);
@@ -28,22 +28,41 @@ async function main(flags) {
         await Promise.all(deps.map(async dep => {
             console.log(`Installing ${dep.description} for ${manifest.content.name}@${manifest.content.version}`);
 
-            const tarBall = Path.resolve('/tmp', `${uuid.v4()}.tgz`);
-            const installDir = Path.resolve(extDirectory, dep.installPath);
+            const id = uuid.v4();
+            const tarBall = Path.resolve('/tmp', `${id}.tgz`);
+            const unpackDir = Path.resolve('/tmp', id);
 
+            const installDir = Path.resolve(extDirectory, dep.installPath);
+            const sourceDir = Path.resolve(unpackDir, dep.packageRootPath);
 
             await execa('curl', ['-L', dep.url, '-o', tarBall]);
 
+            await execa('mkdir', ['-p', unpackDir]);
+            await execa('tar', ['-xzf', tarBall, '-C', unpackDir], { stdio: 'inherit' });
+
             await execa('mkdir', ['-p', installDir]);
-            await execa('tar', ['-xzf', tarBall, '--strip-components=4', '-C', installDir], { stdio: 'inherit' });
 
-            if (dep.code === 'NetCoreLinux') {
-                console.log('Performing NetCoreLinux specific copy tasks');
+            await execa('cp', ['-a', `${sourceDir}/.`, `${installDir}/`]);
 
-                await cpy([
-                    Path.resolve(installDir, 'runtimes/linux-x64/*'), 
-                    Path.resolve(installDir, 'runtimes/linux-x64/native/*')
-                ], installDir);
+            const linuxSourceDir = Path.resolve(installDir, 'runtimes/linux-x64');
+            const nativeSourceDir = Path.resolve(linuxSourceDir, 'native');
+
+            if (await Fs.existsSync(linuxSourceDir)) {
+                await execa('cp', ['-a', `${linuxSourceDir}/.`, `${installDir}/`]);
+            }
+
+            if (await Fs.existsSync(nativeSourceDir)) {
+                await execa('cp', ['-a', `${nativeSourceDir}/.`, `${installDir}/`]);
+            }
+
+            await execa('rm', ['-r', tarBall, unpackDir]);
+
+            const testPath = Path.resolve(extDirectory, dep.installTestPath);
+
+            if (!Fs.existsSync(testPath)) {
+                console.error(`Installation ${dep.description} for ${manifest.content.name}@${manifest.content.version} not verified:\n${testPath} not found.`);
+            } else {
+                console.log(`Installation ${dep.description} for ${manifest.content.name}@${manifest.content.version} succeeded`);
             }
         }));
 
