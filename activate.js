@@ -2,7 +2,6 @@ const Fs = require('fs');
 const Path = require('path');
 const execa = require('execa');
 const globby = require('globby');
-const cpy = require('cpy');
 const yargsParser = require('yargs-parser');
 const uuid = require('uuid');
 

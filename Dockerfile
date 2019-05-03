@@ -3,6 +3,8 @@ FROM brainpower/code-ext
 
 COPY --from=code /usr/local/bin/code-server /usr/local/bin/
 
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
+
 RUN apt-get update && apt-get install -y \
 	openssl \
 	net-tools \
@@ -12,8 +14,8 @@ RUN apt-get update && apt-get install -y \
 	unzip \
 	tar \
 	nodejs \
-	npm \
-	xterm
+	xterm \
+	pkg-config
 
 RUN npm install globby execa cpy yargs-parser uuid
 
