@@ -24,7 +24,7 @@ RUN locale-gen en_US.UTF-8
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
-RUN ext install MS-vsliveshare.vsliveshare 1.0.91
+RUN ext install MS-vsliveshare.vsliveshare 1.0.125
 RUN ext install karigari.chat 0.13.0
 RUN ext install lostintangent.vsls-whiteboard 0.0.8
 
