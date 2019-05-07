@@ -3,7 +3,7 @@ version: '3'
 services:
   cubicle:
     build: .
-    image: brainpower/cubicle
+    image: brainpower/cubicle:code-1.939-share-1.0.125
     ports:
       - '8443:8443'
     command: code-server --allow-http --no-auth
